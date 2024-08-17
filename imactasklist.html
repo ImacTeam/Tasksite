@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMAC TEAM TASK</title>
+    <style>
+        /* Your existing CSS styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #282c34;
+            color: #f1f1f1;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #task-container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 800px;
+        }
+        h1 {
+            text-align: center;
+            color: #61dafb;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        input[type="text"], input[type="date"], select, textarea {
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: #2c313a;
+            color: #fff;
+            font-size: 16px;
+        }
+        input[type="text"]::placeholder, input[type="date"]::placeholder, select::placeholder, textarea::placeholder {
+            color: #aaa;
+        }
+        #add-task-btn {
+            padding: 12px;
+            background-color: #61dafb;
+            color: #282c34;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        #add-task-btn:hover {
+            background-color: #21a1f1;
+        }
+        #categories {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 columns layout */
+            gap: 20px;
+        }
+        .category-container {
+            color: #000;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .category-title {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #000;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5px;
+        }
+        #critical-list { background-color: #ff4c4c; }
+        #major-list { background-color: #ffeb4c; }
+        #minor-list { background-color: #fff; color: #000; }
+        #routine-list { background-color: #4cffd8; }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 10px 0 0;
+        }
+        ul li {
+            background: #000;
+            color: #fff;
+            margin: 5px 0;
+            padding: 12px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border: 1px solid #333;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        ul li.completed {
+            background-color: #28a745;
+            color: #fff;
+        }
+        ul li:hover {
+            transform: scale(1.02);
+        }
+        .task-details {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            background: #2c313a;
+        }
+        .task-details.open {
+            display: block;
+        }
+        .complete-btn, .delete-btn, .open-btn, .still-pending-btn, .edit-btn, .save-edit-btn {
+            background: #61dafb;
+            color: #282c34;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px 5px 5px 0;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .complete-btn:hover, .delete-btn:hover, .open-btn:hover, .still-pending-btn:hover, .edit-btn:hover, .save-edit-btn:hover {
+            background: #21a1f1;
+        }
+        .completed-status {
+            color: #fff;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .change-category-btn {
+            background: #61dafb;
+            color: #282c34;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px 5px 5px 0;
+            font-size: 14px;
+            position: relative;
+            transition: background-color 0.3s;
+        }
+        .change-category-btn:hover {
+            background: #21a1f1;
+        }
+        .category-dropdown {
+            display: none;
+            position: absolute;
+            background: #2c313a;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 5px;
+            z-index: 10;
+            top: 100%;
+            left: 0;
+        }
+        .category-dropdown button {
+            display: block;
+            background: #61dafb;
+            color: #282c34;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 3px;
+            margin-bottom: 5px;
+            transition: background-color 0.3s;
+        }
+        .category-dropdown button:hover {
+            background: #21a1f1;
+        }
+        .dropdown-container {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-container:hover .category-dropdown {
+            display: block;
+        }
+        .edit-form {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            background: #2c313a;
+        }
+    </style>
+</head>
+<body>
+    <div id="task-container">
+        <h1>IMAC TEAM TASK</h1>
+        <form id="task-form">
+            <input type="text" id="task-name" placeholder="Task Name" required>
+            <textarea id="task-note" placeholder="Task Note" rows="4" required></textarea>
+            <input type="date" id="task-edc" required>
+            <select id="task-category" required>
+                <option value="critical">Critical</option>
+                <option value="major">Major</option>
+                <option value="minor">Minor</option>
+                <option value="routine">Routine</option>
+            </select>
+            <button type="submit" id="add-task-btn">Add Task</button>
+        </form><br>
+        <div id="categories">
+            <div class="category-container" id="critical-list">
+                <div class="category-title">Critical</div>
+                <ul id="critical-tasks"></ul>
+            </div>
+            <div class="category-container" id="major-list">
+                <div class="category-title">Major</div>
+                <ul id="major-tasks"></ul>
+            </div>
+            <div class="category-container" id="minor-list">
+                <div class="category-title">Minor</div>
+                <ul id="minor-tasks"></ul>
+            </div>
+            <div class="category-container" id="routine-list">
+                <div class="category-title">Routine</div>
+                <ul id="routine-tasks"></ul>
+            </div>
+        </div>
+    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+        import { getDatabase, ref, set, get, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCouYdsbu2sEKMc5DY3KoQYzimI2qs_-KM",
+            authDomain: "teamimactask.firebaseapp.com",
+            projectId: "teamimactask",
+            storageBucket: "teamimactask.appspot.com",
+            messagingSenderId: "797978454067",
+            appId: "1:797978454067:web:971b316bbad2a9cd711b46",
+            measurementId: "G-SD2K1SPQ1W"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const taskForm = document.getElementById('task-form');
+            const categories = {
+                critical: document.getElementById('critical-tasks'),
+                major: document.getElementById('major-tasks'),
+                minor: document.getElementById('minor-tasks'),
+                routine: document.getElementById('routine-tasks')
+            };
+
+            const loadTasks = () => {
+                for (let category in categories) {
+                    categories[category].innerHTML = ''; // Clear the list first
+                    const taskRef = ref(db, `tasks/${category}`);
+                    onValue(taskRef, (snapshot) => {
+                        categories[category].innerHTML = '';
+                        snapshot.forEach(taskSnapshot => {
+                            const task = taskSnapshot.val();
+                            const li = document.createElement('li');
+                            li.id = task.id;
+                            li.className = task.completed ? 'completed' : '';
+                            li.innerHTML = `
+                                <span><strong>Name:</strong> ${task.name}</span>
+                                <span><strong>Note:</strong> ${task.note}</span>
+                                <span><strong>EDC:</strong> ${task.edc}</span>
+                                <button class="complete-btn">${task.completed ? 'Mark as Pending' : 'Mark as Complete'}</button>
+                                <button class="delete-btn">Delete</button>
+                                <div class="dropdown-container">
+                                    <button class="change-category-btn">Change Category</button>
+                                    <div class="category-dropdown">
+                                        ${Object.keys(categories).map(cat => `<button data-category="${cat}">${cat.charAt(0).toUpperCase() + cat.slice(1)}</button>`).join('')}
+                                    </div>
+                                </div>
+                                <button class="edit-btn">Edit</button>
+                                <div class="edit-form">
+                                    <input type="text" value="${task.name}" class="edit-name">
+                                    <textarea rows="4" class="edit-note">${task.note}</textarea>
+                                    <input type="date" value="${task.edc}" class="edit-edc">
+                                    <button class="save-edit-btn">Save</button>
+                                </div>
+                            `;
+                            categories[category].appendChild(li);
+
+                            li.querySelector('.complete-btn').addEventListener('click', () => {
+                                task.completed = !task.completed;
+                                update(ref(db, `tasks/${category}/${task.id}`), task)
+                                    .then(loadTasks);
+                            });
+
+                            li.querySelector('.delete-btn').addEventListener('click', () => {
+                                remove(ref(db, `tasks/${category}/${task.id}`))
+                                    .then(loadTasks);
+                            });
+
+                            li.querySelector('.edit-btn').addEventListener('click', () => {
+                                li.querySelector('.edit-form').style.display = 'block';
+                            });
+
+                            li.querySelector('.save-edit-btn').addEventListener('click', () => {
+                                const newName = li.querySelector('.edit-name').value;
+                                const newNote = li.querySelector('.edit-note').value;
+                                const newEdc = li.querySelector('.edit-edc').value;
+                                update(ref(db, `tasks/${category}/${task.id}`), {
+                                    name: newName,
+                                    note: newNote,
+                                    edc: newEdc
+                                }).then(loadTasks);
+                            });
+
+                            li.querySelectorAll('.category-dropdown button').forEach(btn => {
+                                btn.addEventListener('click', () => {
+                                    const newCategory = btn.getAttribute('data-category');
+                                    remove(ref(db, `tasks/${category}/${task.id}`))
+                                        .then(() => {
+                                            set(ref(db, `tasks/${newCategory}/${task.id}`), task);
+                                        })
+                                        .then(loadTasks);
+                                });
+                            });
+                        });
+                    });
+                }
+            };
+
+            taskForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('task-name').value;
+                const note = document.getElementById('task-note').value;
+                const edc = document.getElementById('task-edc').value;
+                const category = document.getElementById('task-category').value;
+                const taskId = Date.now().toString();
+
+                const newTask = {
+                    id: taskId,
+                    name,
+                    note,
+                    edc,
+                    completed: false
+                };
+
+                set(ref(db, `tasks/${category}/${taskId}`), newTask)
+                    .then(() => {
+                        loadTasks();
+                        taskForm.reset();
+                    });
+            });
+
+            loadTasks();
+        });
+    </script>
+</body>
+</html>
